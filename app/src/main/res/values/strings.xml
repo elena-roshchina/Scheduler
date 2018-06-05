@@ -1,0 +1,17 @@
+<resources>
+    <string name="app_name">Sheduler</string>
+    <string name="TitleMain">Расписание ЦПСМИ</string>
+    <string name="sendpassbutton">Forget password?</string>
+    <string name="enter_email">Enter email</string>
+    <string name="ok">OK</string>
+    <string name="debug_message">Debug message</string>
+    <string name="check_login_and_password">Check</string>
+    <string name="clear_user_info">Clear</string>
+    <string name="enter_login_dialog">Enter login</string>
+    <string name="enter_password_dialog">Enter password</string>
+    <string name="signin">sign in</string>
+    <string name="dialog_debug_msg">debug msg</string>
+    <string name="dialog_signin_cancel">cancel</string>
+    <string name="sign_in">Sign in</string>
+    <string name="load_data">Load Data</string>
+</resources>
