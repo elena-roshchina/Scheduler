@@ -3,14 +3,19 @@ package example.starfox.sheduler;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Paint;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import java.text.DateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -33,10 +38,15 @@ public class MainActivity extends AppCompatActivity {
     private String session;
     private boolean status;
 
+    RecyclerView recyclerView;
+    List<ScheduleModel> schedule;
+/*
     private void openSecondActivity(){
         Intent secondActivityIntent = new Intent(this,ForgetPasswordActivity.class);
         startActivity(secondActivityIntent);
     }
+*/
+
     // записывает в переменную auth полученный статус, msg и номер сессии
     public void authRequest(String login, String password){
         App.getAuthApi().getData(login,password)
@@ -68,11 +78,22 @@ public class MainActivity extends AppCompatActivity {
 
 
     public void sheduleRequest(String session){
-        App.getScheduleApi().getData(session).enqueue(new Callback<List<SheduleModel>>() {
+        App.getScheduleApi().getData(session).enqueue(new Callback<List<ScheduleModel>>() {
             @Override
-            public void onResponse(Call<List<SheduleModel>> call, Response<List<SheduleModel>> response) {
+            public void onResponse(@NonNull Call<List<ScheduleModel>> call, Response<List<ScheduleModel>> response) {
                 if (response.body() != null) {
-                    String s = "SCHEDULE LOADED";
+                    String str = response.body().get(0).getDate();
+
+                    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+                    schedule.addAll(response.body());
+                    ScheduleAdapter adapter = new ScheduleAdapter(schedule);
+                    recyclerView.setAdapter(adapter);
+                    recyclerView.getAdapter().notifyDataSetChanged();
+
+
+                    int n = response.body().size();
+                    String s = "LOADED " + n + " RECORDS from " + str;
                     Toast.makeText(MainActivity.this, s, Toast.LENGTH_SHORT).show();
                 } else {
                     String s = "RESPONSE NULL";
@@ -81,7 +102,7 @@ public class MainActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onFailure(Call<List<SheduleModel>> call, Throwable t) {
+            public void onFailure(Call<List<ScheduleModel>> call, Throwable t) {
                 String s = "FAIL";
                 Toast.makeText(MainActivity.this, s, Toast.LENGTH_SHORT).show();
             }
@@ -93,6 +114,16 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        schedule = new ArrayList<>();
+        recyclerView = findViewById(R.id.schedule_recycle_view);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+        recyclerView.setLayoutManager(layoutManager);
+        //
+        //вообще-то надопрочитать schedule из SQLite
+
+        ///
+
         TextView mainTitle = findViewById(R.id.main_title);
         debugMessage = findViewById(R.id.debug_text);
         String currentDateTimeString = DateFormat.getDateTimeInstance().format(new Date());
@@ -117,7 +148,7 @@ public class MainActivity extends AppCompatActivity {
                     .enqueue(new Callback<IdentificationModel>() {
                         @Override
                         public void onResponse(Call<IdentificationModel> call,
-                                               Response<IdentificationModel> response) {
+                                               @NonNull Response<IdentificationModel> response) {
                             if (response.body() != null) {
                                 //authRequest(strLogin, strPassword);
                                 session = response.body().getSession();
@@ -133,13 +164,14 @@ public class MainActivity extends AppCompatActivity {
                             }
                         }
                         @Override
-                        public void onFailure(Call<IdentificationModel> call, Throwable t) {
+                        public void onFailure(@NonNull Call<IdentificationModel> call, Throwable t) {
                             Toast.makeText(MainActivity.this,"Sorry, no response",
                                     Toast.LENGTH_SHORT).show();
                         }
                     });
         } else {
-            String s = "  Please Sign In";
+            //
+            String s = " Please Sign In";
             debugMessage.append(s);
             DialogSignIn signIn = new DialogSignIn();
             signIn.show(getSupportFragmentManager(),"SignIn");
@@ -177,14 +209,6 @@ public class MainActivity extends AppCompatActivity {
            }
        });//end of checkEmailButton.setOnClickListener
 
-        // забыли пароль открыть активити с формой отправки емейла
-        Button forgetPasswordButton = findViewById(R.id.forget_pass_button);
-        forgetPasswordButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                openSecondActivity();
-            }
-        });
 
         Button clearUserPswdButton = findViewById(R.id.clear_pswd);
         clearUserPswdButton.setOnClickListener(new View.OnClickListener() {
@@ -208,6 +232,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 String param = sharedPref.getString(SHARED_PREF_SESSION,"");
                 sheduleRequest(param);
+
             }
         });
 

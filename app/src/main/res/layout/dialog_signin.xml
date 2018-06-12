@@ -15,10 +15,13 @@
         android:layout_height="wrap_content"
         android:inputType="textPassword"
         android:hint="@string/enter_password_dialog"/>
-    <TextView
-        android:id="@+id/dialog_debug_msg"
-        android:layout_width="match_parent"
+    <Button
+        android:id="@+id/forget_pass_button"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/dialog_debug_msg"/>
+        android:padding="1dp"
+        style="?android:attr/borderlessButtonStyle"
+        android:text="@string/sendpassbutton"
+        android:textSize="12sp" />
 
 </LinearLayout>

@@ -4,12 +4,14 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.graphics.Paint;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -43,8 +45,25 @@ public class DialogSignIn extends DialogFragment {
         editor = sharedPref.edit();
         builder.setView(dialogView);
 
-        final EditText enterLogin = (EditText) dialogView.findViewById(R.id.user_login_dialog);
-        final EditText enterPswd = (EditText) dialogView.findViewById(R.id.user_pswd_dialog);
+        final EditText enterLogin = dialogView.findViewById(R.id.user_login_dialog);
+        final EditText enterPswd = dialogView.findViewById(R.id.user_pswd_dialog);
+
+        // забыли пароль открыть активити с формой отправки емейла
+        Button forgetPasswordButton = dialogView.findViewById(R.id.forget_pass_button);
+        forgetPasswordButton.setPaintFlags(Paint.UNDERLINE_TEXT_FLAG);
+        forgetPasswordButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(context, "you need to send your email",
+                        Toast.LENGTH_SHORT).show();
+
+                DialogForgetPswd forgetPswd = new DialogForgetPswd();
+                if (getFragmentManager() != null) {
+                    forgetPswd.show(getFragmentManager(),"Enter email");
+                }
+
+            }
+        });
 
         builder.setPositiveButton(R.string.signin, new DialogInterface.OnClickListener() {
             @Override
@@ -57,7 +76,7 @@ public class DialogSignIn extends DialogFragment {
                             .enqueue(new Callback<IdentificationModel>() {
                                 @Override
                                 public void onResponse(Call<IdentificationModel> call,
-                                                       Response<IdentificationModel> response) {
+                                                       @NonNull Response<IdentificationModel> response) {
                                     if (response.body() != null) {
                                         boolean status = response.body().getStatus();
                                         if (status){
@@ -82,7 +101,7 @@ public class DialogSignIn extends DialogFragment {
                                     }
                                 }
                                 @Override
-                                public void onFailure(Call<IdentificationModel> call, Throwable t) {
+                                public void onFailure(@NonNull Call<IdentificationModel> call, @NonNull Throwable t) {
                                     Toast.makeText(context,"Sorry, no response",
                                             Toast.LENGTH_SHORT).show();
                                 }
