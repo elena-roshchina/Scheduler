@@ -60,6 +60,7 @@ public class DialogSignIn extends DialogFragment {
                 DialogForgetPswd forgetPswd = new DialogForgetPswd();
                 if (getFragmentManager() != null) {
                     forgetPswd.show(getFragmentManager(),"Enter email");
+                    dismiss();
                 }
 
             }
@@ -91,6 +92,7 @@ public class DialogSignIn extends DialogFragment {
 
                                             Toast.makeText(context, "data correct and saved",
                                                     Toast.LENGTH_SHORT).show();
+                                            dismiss();
                                         } else {
                                             Toast.makeText(context, "data wrong. Sign in again",
                                                     Toast.LENGTH_SHORT).show();
@@ -116,7 +118,7 @@ public class DialogSignIn extends DialogFragment {
                 .setNegativeButton(R.string.dialog_signin_cancel, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        dialog.cancel();
+                        dismiss();
                     }
                 });
         return builder.create();
