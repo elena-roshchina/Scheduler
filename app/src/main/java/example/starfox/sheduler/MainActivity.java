@@ -12,6 +12,10 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
+import java.lang.reflect.Type;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -27,6 +31,8 @@ public class MainActivity extends AppCompatActivity {
     private static final String SHARED_PREF_LOG = "USER_LOGIN";
     private static final String SHARED_PREF_PASS = "USER_PASS";
     private static final String SHARED_PREF_SESSION = "SESSION";
+    private static final String SHARED_SCHEDULE = "SCHEDULE";
+    private static final String SHARED_LAST_UPDATE = "LAST_UPDATE";
     private SharedPreferences sharedPref;
     private SharedPreferences.Editor editor;
     private TextView debugMessage;
@@ -59,7 +65,6 @@ public class MainActivity extends AppCompatActivity {
                                 String s = "PASSWORD WRONG";
                                 Toast.makeText(MainActivity.this, s, Toast.LENGTH_SHORT).show();
                             }
-
                         } else {
                             String s = "No response";
                             Toast.makeText(MainActivity.this, s, Toast.LENGTH_SHORT).show();
@@ -81,18 +86,34 @@ public class MainActivity extends AppCompatActivity {
             public void onResponse(@NonNull Call<List<ScheduleModel>> call, Response<List<ScheduleModel>> response) {
                 if (response.body() != null) {
                     String str = response.body().get(0).getDate();
-
-                    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
+                    if (schedule.size() != 0){
+                        schedule.clear();
+                    }
                     schedule.addAll(response.body());
-                    ScheduleAdapter adapter = new ScheduleAdapter(schedule);
+
+                    sharedPref = getSharedPreferences(SHARED_PREF,MODE_PRIVATE);
+                    editor = sharedPref.edit();
+
+                    Gson gson =  new Gson();
+                    String schedJson = gson.toJson(schedule);
+                    editor.putString(SHARED_SCHEDULE,schedJson);
+                    editor.apply();
+
+
+                    Type listType = new TypeToken<List<ScheduleModel>>() {}.getType();
+                    List<ScheduleModel> restoredSchedule = gson.fromJson(schedJson,listType);
+
+                    ScheduleAdapter adapter = new ScheduleAdapter(restoredSchedule);
                     recyclerView.setAdapter(adapter);
                     recyclerView.getAdapter().notifyDataSetChanged();
 
 
-                    int n = response.body().size();
-                    String s = "LOADED " + n + " RECORDS from " + str;
-                    Toast.makeText(MainActivity.this, s, Toast.LENGTH_SHORT).show();
+                    if (sharedPref.contains(SHARED_SCHEDULE)){
+
+                        Toast.makeText(MainActivity.this, "schedule saved", Toast.LENGTH_SHORT).show();
+                    }
+
+
                 } else {
                     String s = "RESPONSE NULL";
                     Toast.makeText(MainActivity.this, s, Toast.LENGTH_SHORT).show();
@@ -112,20 +133,30 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        setTitle("Расписание ЦПСМИ");
 
         schedule = new ArrayList<>();
         recyclerView = findViewById(R.id.schedule_recycle_view);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
         //
-        //вообще-то надопрочитать schedule из SQLite
-
-        ///
+        //вообще-то надопрочитать schedule
+        /*
+        if (sharedPref.contains(SHARED_SCHEDULE)
+                && sharedPref.getString(SHARED_SCHEDULE,"").length() != 0){
+            Toast.makeText(MainActivity.this, "Schedule found",
+                    Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(MainActivity.this, "you need to load data",
+                    Toast.LENGTH_SHORT).show();
+        }
+        *///
 
         TextView mainTitle = findViewById(R.id.main_title);
-        debugMessage = findViewById(R.id.debug_text);
+
         String currentDateTimeString = DateFormat.getDateTimeInstance().format(new Date());
-        mainTitle.append(" " + currentDateTimeString);
+        mainTitle.setText(currentDateTimeString);
+        debugMessage = findViewById(R.id.debug_text);
         debugMessage.setText("");
 
         // проверить нет ли пароля логина в шаред преференсиес
@@ -235,4 +266,10 @@ public class MainActivity extends AppCompatActivity {
         });
 
     }
+
+
+
+
+
+
 }
