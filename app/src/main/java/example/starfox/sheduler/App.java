@@ -1,11 +1,11 @@
-package example.starfox.sсheduler;
+package example.starfox.sheduler;
 
 import android.app.Application;
 
 import java.util.concurrent.TimeUnit;
 
-import example.starfox.sсheduler.api.IdentificationApi;
-import example.starfox.sсheduler.api.SheduleApi;
+import example.starfox.sheduler.api.IdentificationApi;
+import example.starfox.sheduler.api.SheduleApi;
 import okhttp3.OkHttpClient;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;

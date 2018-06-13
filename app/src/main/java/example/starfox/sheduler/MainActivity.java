@@ -1,4 +1,4 @@
-package example.starfox.sсheduler;
+package example.starfox.sheduler;
 
 import android.content.Context;
 import android.content.SharedPreferences;

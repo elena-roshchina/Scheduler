@@ -1,4 +1,4 @@
-package example.starfox.sсheduler;
+package example.starfox.sheduler;
 
 import android.app.Dialog;
 import android.content.Context;

@@ -1,9 +1,9 @@
-package example.starfox.sсheduler.api;
+package example.starfox.sheduler.api;
 
 import retrofit2.Call;
 import retrofit2.http.GET;
 import retrofit2.http.Query;
-import example.starfox.sсheduler.IdentificationModel;
+import example.starfox.sheduler.IdentificationModel;
 
 
 public interface IdentificationApi {
