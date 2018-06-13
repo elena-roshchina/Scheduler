@@ -1,9 +1,7 @@
-package example.starfox.sheduler;
+package example.starfox.sсheduler;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Paint;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;

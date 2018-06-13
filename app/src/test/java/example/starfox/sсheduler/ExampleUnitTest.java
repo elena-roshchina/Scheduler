@@ -1,4 +1,4 @@
-package example.starfox.sheduler;
+package example.starfox.sсheduler;
 
 import org.junit.Test;
 

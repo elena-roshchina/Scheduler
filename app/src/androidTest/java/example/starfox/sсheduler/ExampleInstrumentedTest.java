@@ -1,4 +1,4 @@
-package example.starfox.sheduler;
+package example.starfox.sсheduler;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
