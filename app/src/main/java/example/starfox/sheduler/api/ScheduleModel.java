@@ -1,4 +1,4 @@
-package example.starfox.sheduler;
+package example.starfox.sheduler.api;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;

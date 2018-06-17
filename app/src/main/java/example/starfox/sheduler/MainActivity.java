@@ -21,6 +21,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import example.starfox.sheduler.api.IdentificationModel;
+import example.starfox.sheduler.api.ScheduleModel;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -51,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
     }
 */
 
-    // записывает в переменную auth полученный статус, msg и номер сессии
+    // записывает в SHARED_PREF_SESSION  номер сессии
     public void authRequest(String login, String password){
         App.getAuthApi().getData(login,password)
                 .enqueue(new Callback<IdentificationModel>() {
@@ -59,7 +61,7 @@ public class MainActivity extends AppCompatActivity {
                     public void onResponse(Call<IdentificationModel> call, Response<IdentificationModel> response) {
                         if (response.body() != null)  {
                             if (response.body().getStatus()){
-                                String s = "DATA CORRECT";
+                                String s = "PSWD CORRECT";
                                 Toast.makeText(MainActivity.this, s, Toast.LENGTH_SHORT).show();
                             } else {
                                 String s = "PASSWORD WRONG";
@@ -90,7 +92,8 @@ public class MainActivity extends AppCompatActivity {
                         schedule.clear();
                     }
                     schedule.addAll(response.body());
-
+                    Toast.makeText(MainActivity.this,"str",
+                            Toast.LENGTH_SHORT).show();
                     sharedPref = getSharedPreferences(SHARED_PREF,MODE_PRIVATE);
                     editor = sharedPref.edit();
 
@@ -139,18 +142,9 @@ public class MainActivity extends AppCompatActivity {
         recyclerView = findViewById(R.id.schedule_recycle_view);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
-        //
-        //вообще-то надопрочитать schedule
-        /*
-        if (sharedPref.contains(SHARED_SCHEDULE)
-                && sharedPref.getString(SHARED_SCHEDULE,"").length() != 0){
-            Toast.makeText(MainActivity.this, "Schedule found",
-                    Toast.LENGTH_SHORT).show();
-        } else {
-            Toast.makeText(MainActivity.this, "you need to load data",
-                    Toast.LENGTH_SHORT).show();
-        }
-        *///
+
+
+
 
         TextView mainTitle = findViewById(R.id.main_title);
 
@@ -159,10 +153,31 @@ public class MainActivity extends AppCompatActivity {
         debugMessage = findViewById(R.id.debug_text);
         debugMessage.setText("");
 
-        // проверить нет ли пароля логина в шаред преференсиес
+        // проверить нет ли расписания в шаред преференсиес
         sharedPref = getSharedPreferences(SHARED_PREF, Context.MODE_PRIVATE);
         editor = sharedPref.edit();
         status = false;
+
+        if (sharedPref.contains(SHARED_SCHEDULE)){
+            Gson gson =  new Gson();
+            Type listType = new TypeToken<List<ScheduleModel>>() {}.getType();
+            List<ScheduleModel> restoredSchedule = gson.fromJson(sharedPref.getString(SHARED_SCHEDULE,null),listType);
+
+            if (restoredSchedule != null){
+                ScheduleAdapter adapter = new ScheduleAdapter(restoredSchedule);
+                recyclerView.setAdapter(adapter);
+                recyclerView.getAdapter().notifyDataSetChanged();
+                Toast.makeText(MainActivity.this, "Schedule found and shown",
+                        Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(MainActivity.this, "Schedule found and null",
+                        Toast.LENGTH_SHORT).show();
+            }
+
+        } else {
+            Toast.makeText(MainActivity.this, "Schedule not saved",
+                    Toast.LENGTH_SHORT).show();
+        }
 
         if (sharedPref.contains(SHARED_PREF_LOG) && sharedPref.contains(SHARED_PREF_PASS)) {
             // если есть сохраненные пароль и логин
