@@ -1,4 +1,4 @@
-package example.starfox.sheduler.api;
+package example.starfox.sheduler;
 
 /*
 * By http://www.jsonschema2pojo.org/

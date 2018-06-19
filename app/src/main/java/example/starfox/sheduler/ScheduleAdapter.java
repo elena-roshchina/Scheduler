@@ -9,8 +9,6 @@ import android.widget.TextView;
 
 import java.util.List;
 
-import example.starfox.sheduler.api.ScheduleModel;
-
 class ScheduleAdapter extends RecyclerView.Adapter<ScheduleAdapter.ViewHolder> {
 
     private List<ScheduleModel> schedule;

@@ -15,7 +15,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import example.starfox.sheduler.api.IdentificationModel;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -30,6 +29,7 @@ public class DialogSignIn extends DialogFragment {
     private SharedPreferences.Editor editor;
     private String log;
     private String pswd;
+
 
     @NonNull
     @Override
@@ -49,7 +49,7 @@ public class DialogSignIn extends DialogFragment {
         final EditText enterLogin = dialogView.findViewById(R.id.user_login_dialog);
         final EditText enterPswd = dialogView.findViewById(R.id.user_pswd_dialog);
 
-        // забыли пароль открыть активити с формой отправки емейла
+        // забыли пароль открыть форму отправки емейла
         Button forgetPasswordButton = dialogView.findViewById(R.id.forget_pass_button);
         forgetPasswordButton.setPaintFlags(Paint.UNDERLINE_TEXT_FLAG);
         forgetPasswordButton.setOnClickListener(new View.OnClickListener() {
@@ -57,13 +57,11 @@ public class DialogSignIn extends DialogFragment {
             public void onClick(View v) {
                 Toast.makeText(context, "you need to send your email",
                         Toast.LENGTH_SHORT).show();
-
                 DialogForgetPswd forgetPswd = new DialogForgetPswd();
                 if (getFragmentManager() != null) {
                     forgetPswd.show(getFragmentManager(),"Enter email");
                     dismiss();
                 }
-
             }
         });
 
@@ -73,7 +71,6 @@ public class DialogSignIn extends DialogFragment {
                 log = enterLogin.getText().toString();
                 pswd = enterPswd.getText().toString();
                 if (log.length() == 2 && pswd.length() == 3) {
-
                     App.getAuthApi().getData(log, pswd)
                             .enqueue(new Callback<IdentificationModel>() {
                                 @Override
@@ -97,21 +94,25 @@ public class DialogSignIn extends DialogFragment {
                                         } else {
                                             Toast.makeText(context, "data wrong. Sign in again",
                                                     Toast.LENGTH_SHORT).show();
+                                            dismiss();
                                         }
                                     } else {
                                         Toast.makeText(context, "No response",
                                                 Toast.LENGTH_SHORT).show();
+                                        dismiss();
                                     }
                                 }
                                 @Override
                                 public void onFailure(@NonNull Call<IdentificationModel> call, @NonNull Throwable t) {
                                     Toast.makeText(context,"Sorry, no response",
                                             Toast.LENGTH_SHORT).show();
+                                    dismiss();
                                 }
                             });
                 } else {
                     Toast.makeText(context, "ENTER CORRECT DATA",
                             Toast.LENGTH_SHORT).show();
+                    dismiss();
                 }
 
             }

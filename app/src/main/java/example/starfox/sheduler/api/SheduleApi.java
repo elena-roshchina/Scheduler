@@ -2,6 +2,7 @@ package example.starfox.sheduler.api;
 
 import java.util.List;
 
+import example.starfox.sheduler.ScheduleModel;
 import retrofit2.Call;
 import retrofit2.http.GET;
 import retrofit2.http.Query;

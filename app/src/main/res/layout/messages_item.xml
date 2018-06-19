@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="4dp"
+    xmlns:tools="http://schemas.android.com/tools">
+    <TextView
+        android:id="@+id/msg_date_item"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        tools:text="13/04/18"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"/>
+    <TextView
+        android:id="@+id/msg_body_item"
+        android:layout_below="@+id/msg_date_item"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        tools:text="Лекция Цветкова переносится"
+        android:layout_alignParentLeft="true"
+        android:textAlignment="textStart"
+        android:layout_alignParentStart="true"
+        android:gravity="start" />
+</RelativeLayout>

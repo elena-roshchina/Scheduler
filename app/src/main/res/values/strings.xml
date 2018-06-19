@@ -16,4 +16,6 @@
     <string name="load_data">Load</string>
     <string name="warning"> </string>
     <string name="contact_admin">Send</string>
+    <string name="show_marks">Marks</string>
+    <string name="show_messages">Msg</string>
 </resources>
