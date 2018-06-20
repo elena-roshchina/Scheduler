@@ -1,6 +1,7 @@
 package example.starfox.sheduler;
 
 
+        import android.annotation.SuppressLint;
         import android.content.Context;
         import android.content.Intent;
         import android.content.SharedPreferences;
@@ -9,6 +10,7 @@ package example.starfox.sheduler;
         import android.os.Bundle;
         import android.support.v7.widget.LinearLayoutManager;
         import android.support.v7.widget.RecyclerView;
+        import android.view.MenuItem;
         import android.view.View;
         import android.widget.Button;
         import android.widget.TextView;
@@ -26,8 +28,15 @@ package example.starfox.sheduler;
         import retrofit2.Call;
         import retrofit2.Callback;
         import retrofit2.Response;
+        import android.os.Bundle;
+        import android.support.annotation.NonNull;
+        import android.support.design.widget.BottomNavigationView;
+        import android.support.v7.app.AppCompatActivity;
+        import android.view.MenuItem;
+        import android.widget.TextView;
 
 public class MainActivity extends AppCompatActivity {
+
 
     private static final String SHARED_PREF = "MY_SHARED_PREF";
     private static final String SHARED_PREF_LOG = "USER_LOGIN";
@@ -42,16 +51,60 @@ public class MainActivity extends AppCompatActivity {
     private TextView debugMessage;
     RecyclerView recyclerView;
 
+    //private TextView mTextMessage;
+
+    private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
+            = new BottomNavigationView.OnNavigationItemSelectedListener() {
+
+        @Override
+        public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+            switch (item.getItemId()) {
+                case R.id.navigation_home:
+                    openScheduleActivity();
+                    return true;
+                case R.id.navigation_dashboard:
+                    openMarksActivity();
+                    return true;
+                case R.id.navigation_notifications:
+                    openMessageActivity();
+                    return true;
+            }
+            return false;
+        }
+    };
+
+    private void openScheduleActivity(){
+        Intent secondActivityIntent = new Intent(this, ScheduleActivity.class);
+        startActivity(secondActivityIntent);
+    }
+
+    private void openMessageActivity(){
+        Intent secondActivityIntent = new Intent(this, MessagesActivity.class);
+        startActivity(secondActivityIntent);
+    }
+    private void openMarksActivity(){
+        Intent secondActivityIntent = new Intent(this, MarksActivity.class);
+        startActivity(secondActivityIntent);
+    }
+
+    @SuppressLint("SetTextI18n")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         setTitle("Расписание ЦПСМИ");
+
         TextView mainTitle = findViewById(R.id.main_title);
+
         String currentDateTimeString = DateFormat.getDateTimeInstance().format(new Date());
         mainTitle.setText(currentDateTimeString);
         debugMessage = findViewById(R.id.debug_text);
         debugMessage.setText("");
+
+        //mTextMessage = (TextView) findViewById(R.id.message);
+        BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
+        navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
+
         AlarmBroadcastReceiver alarm;
 
         recyclerView = findViewById(R.id.schedule_recycle_view);
@@ -60,7 +113,8 @@ public class MainActivity extends AppCompatActivity {
 
         // check data in Shared Preferencies
         sharedPref = getSharedPreferences(SHARED_PREF, Context.MODE_PRIVATE);
-        if (sharedPref.contains(SHARED_SCHEDULE)){
+        if (sharedPref.contains(SHARED_SCHEDULE)
+                && sharedPref.contains(SHARED_MARKS)){
             Toast.makeText(MainActivity.this, "Schedule found",
                     Toast.LENGTH_SHORT).show();
             Gson gson =  new Gson();
@@ -70,6 +124,7 @@ public class MainActivity extends AppCompatActivity {
             ScheduleAdapter adapter = new ScheduleAdapter(restoredSchedule);
             recyclerView.setAdapter(adapter);
             recyclerView.getAdapter().notifyDataSetChanged();
+
             alarm = new AlarmBroadcastReceiver();
             alarm.setAlarm(this);
         } else {
@@ -127,111 +182,45 @@ public class MainActivity extends AppCompatActivity {
             }// enf of if-else - проверки ShPref на наличие логина
         } // enf of if-else - проверки ShPref на наличие расписания
 
-        Button signInButton = findViewById(R.id.sign_in_button);
+
+        final Button signInButton = findViewById(R.id.sign_in_button);
+        if (sharedPref.contains(SHARED_PREF_LOG) || sharedPref.contains(SHARED_PREF_PASS)){
+            signInButton.setText(R.string.exit);
+        } else {
+            signInButton.setText(R.string.enter);
+        }
         signInButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (!sharedPref.contains(SHARED_PREF_LOG) || !sharedPref.contains(SHARED_PREF_PASS)){
+                String act = signInButton.getText().toString();
+                if (act.equals("sign in")){
                     // считать пароль-логин из диалогового окна
                     //  записать в шаред преференсы
                     DialogSignIn signIn = new DialogSignIn();
                     signIn.show(getSupportFragmentManager(),"SignIn");
+                    signInButton.setText(R.string.exit);
                 } else {
-                    Toast.makeText(MainActivity.this,"You're signed already",
-                            Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
-
-        Button checkButton = findViewById(R.id.check_button);
-        checkButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (sharedPref.contains(SHARED_PREF_LOG) && sharedPref.contains(SHARED_PREF_PASS)){
-                    String login = sharedPref.getString(SHARED_PREF_LOG,"");
-                    String pswd = sharedPref.getString(SHARED_PREF_PASS,"");
-                    authRequest(login,pswd);
-                } else {
-                    Toast.makeText(MainActivity.this,"Sign In",
-                            Toast.LENGTH_SHORT).show();
-                }
-            }
-        });//end of checkEmailButton.setOnClickListener
-
-
-        Button clearUserPswdButton = findViewById(R.id.clear_pswd);
-        clearUserPswdButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (sharedPref.contains(SHARED_PREF_LOG) && sharedPref.contains(SHARED_PREF_PASS)){
+                    sharedPref = getSharedPreferences(SHARED_PREF,MODE_PRIVATE);
+                    editor = sharedPref.edit();
                     editor.remove(SHARED_PREF_LOG);
                     editor.remove(SHARED_PREF_PASS);
                     editor.apply();
                     editor.commit();
                     debugMessage.append("Log and Pass are removed");
-                } else {
-                    debugMessage.append("Log and Pass are empty");
+                    signInButton.setText(R.string.enter);
                 }
             }
         });
 
-        Button loadData = findViewById(R.id.load_data);
-        loadData.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String param = sharedPref.getString(SHARED_PREF_SESSION,"");
-                Toast.makeText(MainActivity.this, param,
-                        Toast.LENGTH_SHORT).show();
-                marksRequest(MainActivity.this, param);
-            }
-        });
 
-        Button showMarks = findViewById(R.id.show_marks_button);
-        showMarks.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (sharedPref.contains(SHARED_MARKS)){
-                    Toast.makeText(MainActivity.this,"MARKS FOUND",
-                            Toast.LENGTH_SHORT).show();
-                    openMarksActivity();
-                }  else {
-                    Toast.makeText(MainActivity.this,"MARKS NOT FOUND",
-                            Toast.LENGTH_SHORT).show();
-                }
-
-            }
-        });
-
-        Button showMessages = findViewById(R.id.show_messages_button);
-        showMessages.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (sharedPref.contains(SHARED_MESSAGES)){
-                    Toast.makeText(MainActivity.this,"MESSAGES FOUND",
-                            Toast.LENGTH_SHORT).show();
-                    openMessageActivity();
-                } else {
-                    Toast.makeText(MainActivity.this,"MESSAGES NOT FOUND",
-                            Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
 
     } // end of onCreate
 
 
-    private void openMessageActivity(){
-        Intent secondActivityIntent = new Intent(this, MessagesActivity.class);
-        startActivity(secondActivityIntent);
-    }
-    private void openMarksActivity(){
-        Intent secondActivityIntent = new Intent(this, MarksActivity.class);
-        startActivity(secondActivityIntent);
-    }
 
 
     // записывает в SHARED_PREF id последнего commit
-    public void lastUpdateIDRequest(String session){
+    private void lastUpdateIDRequest(String session){
         App.getLastUpdateIDApi().getData(session).enqueue(new Callback<LastUpdateIDModel>() {
             @Override
             public void onResponse(@NonNull Call<LastUpdateIDModel> call, Response<LastUpdateIDModel> response) {
@@ -253,7 +242,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     // записывает в SHARED_PREF_SESSION  номер сессии
-    public void authRequest(String login, String password){
+    private void authRequest(String login, String password){
         App.getAuthApi().getData(login,password)
                 .enqueue(new Callback<IdentificationModel>() {
                     @Override
@@ -283,7 +272,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     // загружает и сохраняет оценки
-    public void marksRequest(final Context context, String session){
+    private void marksRequest(final Context context, String session){
         App.getMarksApi().getData(session).enqueue(new Callback<MarksModel>() {
             @Override
             public void onResponse(Call<MarksModel> call, Response<MarksModel> response) {
@@ -309,7 +298,7 @@ public class MainActivity extends AppCompatActivity {
     } // end of marksRequest
 
     // загружает и сохраняет сообщения
-    public void messagesRequest(final Context context, String session){
+    private void messagesRequest(final Context context, String session){
         App.getMessagesApi().getData(session).enqueue(new Callback<MessagesModel>() {
             @Override
             public void onResponse(Call<MessagesModel> call, Response<MessagesModel> response) {
@@ -347,9 +336,9 @@ public class MainActivity extends AppCompatActivity {
                             String schedJson = gson.toJson(schedule);
                             saveToShared(context, SHARED_SCHEDULE, schedJson);
                             // show schedule
-                            ScheduleAdapter adapter = new ScheduleAdapter(schedule);
-                            recyclerView.setAdapter(adapter);
-                            recyclerView.getAdapter().notifyDataSetChanged();
+                            //ScheduleAdapter adapter = new ScheduleAdapter(schedule);
+                            //recyclerView.setAdapter(adapter);
+                            //recyclerView.getAdapter().notifyDataSetChanged();
                         }
                     }
                     @Override
@@ -369,4 +358,6 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(context,key + " SAVED", Toast.LENGTH_SHORT).show();
         }
     }
+
+
 }

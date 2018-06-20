@@ -6,7 +6,7 @@
     <string name="ok">OK</string>
     <string name="debug_message">Debug message</string>
     <string name="check_login_and_password">Check</string>
-    <string name="clear_user_info">Clear</string>
+    <string name="clear_user_info">log out</string>
     <string name="enter_login_dialog">Enter login</string>
     <string name="enter_password_dialog">Enter password</string>
     <string name="signin">sign in</string>
@@ -18,4 +18,14 @@
     <string name="contact_admin">Send</string>
     <string name="show_marks">Marks</string>
     <string name="show_messages">Msg</string>
+    <string name="title_home">Schedule</string>
+    <string name="title_dashboard">Marks</string>
+    <string name="title_notifications">Notification</string>
+    <string name="show_schedules">Schedule</string>
+    <string name="bar_schedule">Schedule</string>
+    <string name="bar_marks">Marks</string>
+    <string name="bar_notification">Notification</string>
+    <string name="signup_message">Sign in and reload your application</string>
+    <string name="exit">log out</string>
+    <string name="enter">sign in</string>
 </resources>

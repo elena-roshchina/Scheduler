@@ -9,11 +9,9 @@
     <android.support.v7.widget.RecyclerView
         android:layout_height="wrap_content"
         android:layout_width="match_parent"
-        android:id="@+id/messages_recycle_view"
+        android:id="@+id/new_schedule_recycle_view"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="@+id/navigation"
-        android:paddingBottom="@dimen/content_bottom_margin"
         />
     <android.support.design.widget.BottomNavigationView
         android:id="@+id/navigation"
@@ -28,4 +26,3 @@
         app:menu="@menu/navigation" />
 
 </android.support.constraint.ConstraintLayout>
-

@@ -81,9 +81,7 @@ public class DialogSignIn extends DialogFragment {
                                         if (status){
                                             editor.putString(SHARED_PREF_LOG,log);
                                             editor.putString(SHARED_PREF_PASS,pswd);
-
                                             String session = response.body().getSession();
-
                                             editor.putString(SHARED_PREF_SESSION,session);
                                             editor.apply();
                                             editor.commit();

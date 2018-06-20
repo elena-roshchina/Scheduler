@@ -16,11 +16,15 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.NotificationCompat;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
+
 import java.io.IOException;
 import java.text.Format;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -40,6 +44,7 @@ public class AlarmBroadcastReceiver extends BroadcastReceiver {
     private SharedPreferences sharedPref;
     private SharedPreferences.Editor editor;
     StringBuilder msgStr;
+    String session;
 
     @Override
     public void onReceive(final Context context, Intent intent) {
@@ -62,9 +67,35 @@ public class AlarmBroadcastReceiver extends BroadcastReceiver {
                 @Override
                 public void onResponse(Call<IdentificationModel> call, Response<IdentificationModel> response) {
                     if (response.body() != null) {
-                        msgStr.append("Response " + response.body().getStatus());
+                        msgStr.append("Auth ");
+                        msgStr.append(response.body().getStatus());
+                        session = response.body().getSession();
+                        App.getLastUpdateIDApi().getData(session).enqueue(new Callback<LastUpdateIDModel>() {
+                            @Override
+                            public void onResponse(@NonNull Call<LastUpdateIDModel> call, Response<LastUpdateIDModel> response) {
+                                if (response.body() != null) {
+                                    msgStr.append(" ID ");
+                                    String lastCommitID = response.body().getCommitId();
+                                    msgStr.append(lastCommitID);
+                                    sharedPref = context.getSharedPreferences(SHARED_PREF, Context.MODE_PRIVATE);
+                                    //if (sharedPref.contains(SHARED_LAST_UPDATE)){
+                                        //if (!sharedPref.getString(SHARED_LAST_UPDATE,"").equals(lastCommitID)){
+                                            sheduleRequest(context,session);
+                                            marksRequest(context,session);
+                                            messagesRequest(context,session);
+                                            msgStr.append(" UPD");
+                                            letCreateNotification(context, msgStr.toString());
+                                        //}
+                                    //}
+                                }
+                            }
+                            @Override
+                            public void onFailure(Call<LastUpdateIDModel> call, Throwable t) {
+                                msgStr.append("ID fail");
+                            }
+                        });
                     } else {
-                        msgStr.append("Response NULL");
+                        msgStr.append("Re NULL ");
                     }
                     Format formatter = new SimpleDateFormat("hh:mm:ss a");
                     msgStr.append(formatter.format(new Date()));
@@ -73,7 +104,7 @@ public class AlarmBroadcastReceiver extends BroadcastReceiver {
 
                 @Override
                 public void onFailure(Call<IdentificationModel> call, Throwable t) {
-                    msgStr.append("Response FAIL");
+                    msgStr.append("Auth fail");
                     Format formatter = new SimpleDateFormat("hh:mm:ss a");
                     msgStr.append(formatter.format(new Date()));
                     letCreateNotification(context, msgStr.toString());
@@ -82,37 +113,17 @@ public class AlarmBroadcastReceiver extends BroadcastReceiver {
 
         } else {
             msgStr.append("No Login found at ");
+            Format formatter = new SimpleDateFormat("hh:mm:ss a");
+            msgStr.append(formatter.format(new Date()));
             letCreateNotification(context, msgStr.toString());
         }
 
-        //msgStr.append("WAKE UP ");
-
-
-        /*
-        Toast.makeText(context, msgStr, Toast.LENGTH_LONG).show();
-        */
-        //Создаем Intent для запуска Activity и упаковываем его в PedningIntent
-        // по клику на уведомление запустится mainactivity
-        /*
-        Intent resultIntent = new Intent(context, MainActivity.class);
-        PendingIntent resultPendingIntent = PendingIntent.getActivity(context, 0, resultIntent,
-                PendingIntent.FLAG_UPDATE_CURRENT);
-
-        Notification notification = createNotification(context, resultPendingIntent,
-                R.mipmap.ic_launcher,
-                "Notification ", msgStr.toString());
-        NotificationManager notificationManager =
-                (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-        if (notificationManager != null) {
-            notificationManager.notify(1, notification);
-        }
-        */
         //Разблокируем поток.
         wl.release();
     }
 
     private void letCreateNotification(Context context, String ourMessage){
-        Intent resultIntent = new Intent(context, MainActivity.class);
+        Intent resultIntent = new Intent(context, MessagesActivity.class);
         PendingIntent resultPendingIntent = PendingIntent.getActivity(context, 0, resultIntent,
                 PendingIntent.FLAG_UPDATE_CURRENT);
         Notification notification = createNotification(context, resultPendingIntent,
@@ -131,11 +142,15 @@ public class AlarmBroadcastReceiver extends BroadcastReceiver {
         Intent intent = new Intent(context, AlarmBroadcastReceiver.class);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, intent, 0);
         if (am != null) {
-            am.setRepeating(AlarmManager.RTC_WAKEUP,
+            /*am.setRepeating(AlarmManager.RTC_WAKEUP,
                     System.currentTimeMillis(),
                     60*60*1000L,
+                    pendingIntent); */
+            am.setInexactRepeating(AlarmManager.RTC_WAKEUP,
+                    System.currentTimeMillis(),
+                    AlarmManager.INTERVAL_HOUR,
                     pendingIntent);
-            Toast.makeText(context, "set alarm ", Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, "set alarm" , Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -155,7 +170,104 @@ public class AlarmBroadcastReceiver extends BroadcastReceiver {
         return builder.build();
     }
 
+    // записывает в SHARED_PREF id последнего commit
+    private void lastUpdateIDRequest(final Context context, final String session){
+        App.getLastUpdateIDApi().getData(session).enqueue(new Callback<LastUpdateIDModel>() {
+            @Override
+            public void onResponse(@NonNull Call<LastUpdateIDModel> call, Response<LastUpdateIDModel> response) {
+                if (response.body() != null) {
+                    String lastCommitID = response.body().getCommitId();
+                    sharedPref = context.getSharedPreferences(SHARED_PREF, Context.MODE_PRIVATE);
+                    if (sharedPref.contains(SHARED_LAST_UPDATE)){
+                        if (!sharedPref.getString(SHARED_LAST_UPDATE,"").equals(lastCommitID)){
+                            sheduleRequest(context,session);
+                            marksRequest(context,session);
+                            messagesRequest(context,session);
+                            @SuppressLint("SimpleDateFormat") Format formatter = new SimpleDateFormat("hh:mm:ss a");
+                            msgStr.append(formatter.format(new Date()));
+                            msgStr.append("UDTATED");
+                            letCreateNotification(context, msgStr.toString());
+                        }
+                    } else {
+                        saveToShared(context,SHARED_LAST_UPDATE,lastCommitID);
+                    }
+                }
+            }
+            @Override
+            public void onFailure(Call<LastUpdateIDModel> call, Throwable t) {
+            }
+        });
+    }    // end of lastUpdateIDRequest
 
+    // загружает и сохраняет оценки
+    private void marksRequest(final Context context, String session){
+        App.getMarksApi().getData(session).enqueue(new Callback<MarksModel>() {
+            @Override
+            public void onResponse(Call<MarksModel> call, Response<MarksModel> response) {
+                if (response.body() != null){
+                    Toast.makeText(context,
+                            "GOT MARKS", Toast.LENGTH_SHORT).show();
+                    List<SubjectsList> marks =  new ArrayList<>();
+                    marks.addAll(response.body().getSubjectsList());
+                    Gson gson =  new Gson();
+                    String marksJson = gson.toJson(marks);
+                    saveToShared(context, SHARED_MARKS, marksJson);
+                }
+            }
+            @Override
+            public void onFailure(Call<MarksModel> call, Throwable t) {
 
+            }
+        });
+    } // end of marksRequest
+
+    // загружает и сохраняет сообщения
+    private void messagesRequest(final Context context, String session){
+        App.getMessagesApi().getData(session).enqueue(new Callback<MessagesModel>() {
+            @Override
+            public void onResponse(Call<MessagesModel> call, Response<MessagesModel> response) {
+                if (response.body() != null){
+                    List<MsgList> messages =  new ArrayList<>();
+                    messages.addAll(response.body().getMsgList());
+                    Gson gson =  new Gson();
+                    String msgJson = gson.toJson(messages);
+                    saveToShared(context, SHARED_MESSAGES, msgJson);
+                }
+            }
+            @Override
+            public void onFailure(Call<MessagesModel> call, Throwable t) {
+            }
+        });
+    } // end of messageRequest
+
+    // загружает и сохраняет расписание
+    public void sheduleRequest(final Context context, String session){
+        App.getScheduleApi().getData(session)
+                .enqueue(new Callback<List<ScheduleModel>>() {
+                    @Override
+                    public void onResponse(Call<List<ScheduleModel>> call,
+                                           Response<List<ScheduleModel>> response) {
+                        if (response.body() != null){
+                            List<ScheduleModel> schedule = new ArrayList<>();
+                            schedule.addAll(response.body());
+                            Gson gson =  new Gson();
+                            String schedJson = gson.toJson(schedule);
+                            saveToShared(context, SHARED_SCHEDULE, schedJson);
+                        }
+                    }
+                    @Override
+                    public void onFailure(Call<List<ScheduleModel>> call, Throwable t) {
+
+                    }
+                });
+    } // end of scheduleRequest
+
+    private void saveToShared(Context context, String key, String savedString) {
+        sharedPref = context.getSharedPreferences(SHARED_PREF, Context.MODE_PRIVATE);
+        editor = sharedPref.edit();
+        editor.putString(key, savedString);
+        editor.apply();
+        editor.commit();
+    }
 }
 

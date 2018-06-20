@@ -24,6 +24,7 @@
             android:screenOrientation="portrait"/>
         <activity android:name=".MarksActivity"
             android:screenOrientation="portrait"/>
+        <activity android:name=".ScheduleActivity" />
 
         <receiver android:name=".AlarmBroadcastReceiver" />
 

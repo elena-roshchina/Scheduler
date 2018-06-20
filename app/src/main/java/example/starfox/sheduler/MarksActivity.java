@@ -1,11 +1,16 @@
 package example.starfox.sheduler;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.BottomNavigationView;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.MenuItem;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
@@ -25,6 +30,45 @@ public class MarksActivity extends AppCompatActivity {
     private static final String SHARED_MESSAGES = "MESSAGES";
     private static final String SHARED_LAST_UPDATE = "LAST_UPDATE";
 
+    //private TextView mTextMessage;
+
+    private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
+            = new BottomNavigationView.OnNavigationItemSelectedListener() {
+
+        @Override
+        public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+            switch (item.getItemId()) {
+                case R.id.navigation_home:
+                    //mTextMessage.setText(R.string.title_home);
+                    openScheduleActivity();
+                    return true;
+                case R.id.navigation_dashboard:
+                    //mTextMessage.setText(R.string.title_dashboard);
+                    openMarksActivity();
+                    return true;
+                case R.id.navigation_notifications:
+                    //mTextMessage.setText(R.string.title_notifications);
+                    openMessageActivity();
+                    return true;
+            }
+            return false;
+        }
+    };
+
+    private void openScheduleActivity(){
+        Intent secondActivityIntent = new Intent(this, ScheduleActivity.class);
+        startActivity(secondActivityIntent);
+    }
+
+
+    private void openMessageActivity(){
+        Intent secondActivityIntent = new Intent(this, MessagesActivity.class);
+        startActivity(secondActivityIntent);
+    }
+    private void openMarksActivity(){
+        Intent secondActivityIntent = new Intent(this, MarksActivity.class);
+        startActivity(secondActivityIntent);
+    }
 
 
     @Override
@@ -32,6 +76,10 @@ public class MarksActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_marks);
         setTitle("Зачетка");
+
+        //mTextMessage = (TextView) findViewById(R.id.message);
+        BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
+        navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
         SharedPreferences sharedPref = getSharedPreferences(SHARED_PREF, MODE_PRIVATE);
         RecyclerView recyclerView  = findViewById(R.id.marks_recycle_view);
