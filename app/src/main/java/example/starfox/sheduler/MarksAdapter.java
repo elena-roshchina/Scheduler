@@ -30,8 +30,17 @@ public class MarksAdapter extends RecyclerView.Adapter<MarksAdapter.ViewHolder> 
         SubjectsList itemSubjectMark = marks.get(position);
 
         holder.itemSubject.setText(itemSubjectMark.getSubject());
-        holder.itemMark.setText(itemSubjectMark.getMark());
-        holder.itemDate.setText(itemSubjectMark.getDay());
+        String mark ="-";
+        if (itemSubjectMark.getMark() != null){
+            mark = itemSubjectMark.getMark();
+        }
+        holder.itemMark.setText(mark);
+
+        String day = "------------";
+        if (itemSubjectMark.getDay() != null){
+            day = itemSubjectMark.getDay();
+        }
+        holder.itemDate.setText(day);
     }
 
     @Override

@@ -15,13 +15,13 @@
         android:textStyle="bold"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:paddingLeft="11dp"
         android:layout_marginStart="11dp"
         android:layout_marginTop="11dp"
         android:layout_marginBottom="2dp"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        android:layout_marginLeft="12dp" />
+        android:layout_marginLeft="11dp"
+         />
     <Button
         android:id="@+id/sign_in_button"
         android:layout_width="wrap_content"

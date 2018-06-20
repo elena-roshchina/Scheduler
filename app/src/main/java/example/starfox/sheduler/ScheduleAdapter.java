@@ -32,7 +32,9 @@ class ScheduleAdapter extends RecyclerView.Adapter<ScheduleAdapter.ViewHolder> {
         holder.itemData.setText(itemSchedule.getDate());
         holder.itemSubj.setText(itemSchedule.getSubj());
         holder.itemStuff.setText(itemSchedule.getStaff());
-        holder.itemRoom.setText(itemSchedule.getRoom());
+        String audience = "ауд. ";
+        audience += itemSchedule.getRoom();
+        holder.itemRoom.setText(audience);
     }
 
     @Override
@@ -50,7 +52,7 @@ class ScheduleAdapter extends RecyclerView.Adapter<ScheduleAdapter.ViewHolder> {
         TextView itemStuff;
         TextView itemRoom;
 
-        public ViewHolder(View itemView) {
+        private ViewHolder(View itemView) {
             super(itemView);
             itemData = (TextView) itemView.findViewById(R.id.data_item);
             itemSubj = (TextView) itemView.findViewById(R.id.subj_item);

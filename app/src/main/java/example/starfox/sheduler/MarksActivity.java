@@ -77,7 +77,6 @@ public class MarksActivity extends AppCompatActivity {
         setContentView(R.layout.activity_marks);
         setTitle("Зачетка");
 
-        //mTextMessage = (TextView) findViewById(R.id.message);
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
@@ -86,7 +85,6 @@ public class MarksActivity extends AppCompatActivity {
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
 
-
         if (sharedPref.contains(SHARED_MARKS)){
             Gson gson =  new Gson();
             Type listType = new TypeToken<List<SubjectsList>>() {}.getType();
@@ -94,16 +92,11 @@ public class MarksActivity extends AppCompatActivity {
             List<SubjectsList> restoredMarks = gson.fromJson(gMarks,listType);
             int n = restoredMarks.size();
             String s1 = restoredMarks.get(0).getSubject();
-
-
-            Toast.makeText(this, s1,
-                    Toast.LENGTH_SHORT).show();
             // show our data
             MarksAdapter adapter = new MarksAdapter(restoredMarks);
             recyclerView.setAdapter(adapter);
-
         } else {
-            Toast.makeText(this, " Lines not found",
+            Toast.makeText(this, " Marks not found",
                     Toast.LENGTH_SHORT).show();
         }
     }

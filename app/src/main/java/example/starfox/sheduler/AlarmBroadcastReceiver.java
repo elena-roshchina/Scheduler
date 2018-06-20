@@ -65,25 +65,25 @@ public class AlarmBroadcastReceiver extends BroadcastReceiver {
             String strPassword = sharedPref.getString(SHARED_PREF_PASS,"");
             App.getAuthApi().getData(strLogin, strPassword).enqueue(new Callback<IdentificationModel>() {
                 @Override
-                public void onResponse(Call<IdentificationModel> call, Response<IdentificationModel> response) {
+                public void onResponse(@NonNull Call<IdentificationModel> call, Response<IdentificationModel> response) {
                     if (response.body() != null) {
-                        msgStr.append("Auth ");
-                        msgStr.append(response.body().getStatus());
+                        //msgStr.append("Auth ");
+                        //msgStr.append(response.body().getStatus());
                         session = response.body().getSession();
                         App.getLastUpdateIDApi().getData(session).enqueue(new Callback<LastUpdateIDModel>() {
                             @Override
                             public void onResponse(@NonNull Call<LastUpdateIDModel> call, Response<LastUpdateIDModel> response) {
                                 if (response.body() != null) {
-                                    msgStr.append(" ID ");
+                                    //msgStr.append(" ID ");
                                     String lastCommitID = response.body().getCommitId();
-                                    msgStr.append(lastCommitID);
+                                    //msgStr.append(lastCommitID);
                                     sharedPref = context.getSharedPreferences(SHARED_PREF, Context.MODE_PRIVATE);
                                     //if (sharedPref.contains(SHARED_LAST_UPDATE)){
                                         //if (!sharedPref.getString(SHARED_LAST_UPDATE,"").equals(lastCommitID)){
                                             sheduleRequest(context,session);
                                             marksRequest(context,session);
                                             messagesRequest(context,session);
-                                            msgStr.append(" UPD");
+                                            msgStr.append(" Schedule updated ");
                                             letCreateNotification(context, msgStr.toString());
                                         //}
                                     //}
@@ -95,7 +95,7 @@ public class AlarmBroadcastReceiver extends BroadcastReceiver {
                             }
                         });
                     } else {
-                        msgStr.append("Re NULL ");
+                        msgStr.append("Response NULL ");
                     }
                     Format formatter = new SimpleDateFormat("hh:mm:ss a");
                     msgStr.append(formatter.format(new Date()));
@@ -128,7 +128,7 @@ public class AlarmBroadcastReceiver extends BroadcastReceiver {
                 PendingIntent.FLAG_UPDATE_CURRENT);
         Notification notification = createNotification(context, resultPendingIntent,
                 R.mipmap.ic_launcher,
-                "Notification ", ourMessage);
+                "ЦПСМИ ", ourMessage);
         NotificationManager notificationManager =
                 (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         if (notificationManager != null) {
