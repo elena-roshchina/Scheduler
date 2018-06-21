@@ -16,7 +16,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="11dp"
-        android:layout_marginTop="11dp"
+        android:layout_marginTop="10dp"
         android:layout_marginBottom="2dp"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -35,11 +35,15 @@
         app:layout_constraintTop_toTopOf="parent"/>
     <TextView
         android:id="@+id/debug_text"
+        android:paddingStart="11dp"
+        android:textSize="16sp"
+        android:textColor="@android:color/white"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/debug_message"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/main_title"/>
+        app:layout_constraintTop_toBottomOf="@+id/main_title"
+        android:paddingLeft="8dp" />
 
     <android.support.v7.widget.RecyclerView
         android:layout_height="wrap_content"
@@ -55,7 +59,7 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="0dp"
         android:layout_marginStart="0dp"
-        android:background="#CAFF74"
+        android:background="@android:color/holo_green_light"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"

@@ -41,6 +41,8 @@ public class AlarmBroadcastReceiver extends BroadcastReceiver {
     private static final String SHARED_MARKS = "MARKS";
     private static final String SHARED_MESSAGES = "MESSAGES";
     private static final String SHARED_LAST_UPDATE = "LAST_UPDATE";
+    private final String NOTIFICATION_TITLE = "ЦПСМИ ";
+    private final int NOTIFICATION_ID = 1;
     private SharedPreferences sharedPref;
     private SharedPreferences.Editor editor;
     StringBuilder msgStr;
@@ -127,12 +129,11 @@ public class AlarmBroadcastReceiver extends BroadcastReceiver {
         PendingIntent resultPendingIntent = PendingIntent.getActivity(context, 0, resultIntent,
                 PendingIntent.FLAG_UPDATE_CURRENT);
         Notification notification = createNotification(context, resultPendingIntent,
-                R.mipmap.ic_launcher,
-                "ЦПСМИ ", ourMessage);
+                R.mipmap.ic_launcher, NOTIFICATION_TITLE, ourMessage);
         NotificationManager notificationManager =
                 (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         if (notificationManager != null) {
-            notificationManager.notify(1, notification);
+            notificationManager.notify(NOTIFICATION_ID, notification);
         }
     } // end of letCreateNotification
 
@@ -153,11 +154,11 @@ public class AlarmBroadcastReceiver extends BroadcastReceiver {
             Toast.makeText(context, "set alarm" , Toast.LENGTH_SHORT).show();
         }
     }
-
+    /*
     public void cancelAlarm(Context context)
     {
         Intent intent = new Intent(context, AlarmBroadcastReceiver.class);
-    }
+    } */
 
     private Notification createNotification(Context context, PendingIntent resultPendingIntent,
                                             int icon, String title, String txt){
@@ -169,35 +170,6 @@ public class AlarmBroadcastReceiver extends BroadcastReceiver {
                         .setContentIntent(resultPendingIntent);
         return builder.build();
     }
-
-    // записывает в SHARED_PREF id последнего commit
-    private void lastUpdateIDRequest(final Context context, final String session){
-        App.getLastUpdateIDApi().getData(session).enqueue(new Callback<LastUpdateIDModel>() {
-            @Override
-            public void onResponse(@NonNull Call<LastUpdateIDModel> call, Response<LastUpdateIDModel> response) {
-                if (response.body() != null) {
-                    String lastCommitID = response.body().getCommitId();
-                    sharedPref = context.getSharedPreferences(SHARED_PREF, Context.MODE_PRIVATE);
-                    if (sharedPref.contains(SHARED_LAST_UPDATE)){
-                        if (!sharedPref.getString(SHARED_LAST_UPDATE,"").equals(lastCommitID)){
-                            sheduleRequest(context,session);
-                            marksRequest(context,session);
-                            messagesRequest(context,session);
-                            @SuppressLint("SimpleDateFormat") Format formatter = new SimpleDateFormat("hh:mm:ss a");
-                            msgStr.append(formatter.format(new Date()));
-                            msgStr.append("UDTATED");
-                            letCreateNotification(context, msgStr.toString());
-                        }
-                    } else {
-                        saveToShared(context,SHARED_LAST_UPDATE,lastCommitID);
-                    }
-                }
-            }
-            @Override
-            public void onFailure(Call<LastUpdateIDModel> call, Throwable t) {
-            }
-        });
-    }    // end of lastUpdateIDRequest
 
     // загружает и сохраняет оценки
     private void marksRequest(final Context context, String session){
@@ -257,7 +229,6 @@ public class AlarmBroadcastReceiver extends BroadcastReceiver {
                     }
                     @Override
                     public void onFailure(Call<List<ScheduleModel>> call, Throwable t) {
-
                     }
                 });
     } // end of scheduleRequest

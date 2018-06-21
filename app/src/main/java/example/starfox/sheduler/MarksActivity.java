@@ -22,15 +22,7 @@ import java.util.List;
 public class MarksActivity extends AppCompatActivity {
 
     private static final String SHARED_PREF = "MY_SHARED_PREF";
-    private static final String SHARED_PREF_LOG = "USER_LOGIN";
-    private static final String SHARED_PREF_PASS = "USER_PASS";
-    private static final String SHARED_PREF_SESSION = "SESSION";
-    private static final String SHARED_SCHEDULE = "SCHEDULE";
     private static final String SHARED_MARKS = "MARKS";
-    private static final String SHARED_MESSAGES = "MESSAGES";
-    private static final String SHARED_LAST_UPDATE = "LAST_UPDATE";
-
-    //private TextView mTextMessage;
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -39,15 +31,12 @@ public class MarksActivity extends AppCompatActivity {
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
             switch (item.getItemId()) {
                 case R.id.navigation_home:
-                    //mTextMessage.setText(R.string.title_home);
                     openScheduleActivity();
                     return true;
                 case R.id.navigation_dashboard:
-                    //mTextMessage.setText(R.string.title_dashboard);
                     openMarksActivity();
                     return true;
                 case R.id.navigation_notifications:
-                    //mTextMessage.setText(R.string.title_notifications);
                     openMessageActivity();
                     return true;
             }
@@ -60,7 +49,6 @@ public class MarksActivity extends AppCompatActivity {
         startActivity(secondActivityIntent);
     }
 
-
     private void openMessageActivity(){
         Intent secondActivityIntent = new Intent(this, MessagesActivity.class);
         startActivity(secondActivityIntent);
@@ -69,7 +57,6 @@ public class MarksActivity extends AppCompatActivity {
         Intent secondActivityIntent = new Intent(this, MarksActivity.class);
         startActivity(secondActivityIntent);
     }
-
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {

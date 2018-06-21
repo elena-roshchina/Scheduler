@@ -21,9 +21,13 @@ package example.starfox.sheduler;
 
         import java.lang.reflect.Type;
         import java.text.DateFormat;
+        import java.text.ParseException;
+        import java.text.SimpleDateFormat;
         import java.util.ArrayList;
         import java.util.Date;
+        import java.util.HashSet;
         import java.util.List;
+        import java.util.Set;
 
         import retrofit2.Call;
         import retrofit2.Callback;
@@ -99,9 +103,8 @@ public class MainActivity extends AppCompatActivity {
         String currentDateTimeString = DateFormat.getDateTimeInstance().format(new Date());
         mainTitle.setText(currentDateTimeString);
         debugMessage = findViewById(R.id.debug_text);
-        debugMessage.setText("");
+        debugMessage.setText("Ваши занятия на текущую неделю:");
 
-        //mTextMessage = (TextView) findViewById(R.id.message);
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
@@ -111,7 +114,11 @@ public class MainActivity extends AppCompatActivity {
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
 
-        // check data in Shared Preferencies
+        //String strDate = "2018-06-22";
+        //boolean result = dateInCurrentWeek(strDate);
+        //debugMessage.append(strDate + " " + result);
+
+        // / check data in Shared Preferencies
         sharedPref = getSharedPreferences(SHARED_PREF, Context.MODE_PRIVATE);
         if (sharedPref.contains(SHARED_SCHEDULE)
                 && sharedPref.contains(SHARED_MARKS)){
@@ -119,9 +126,19 @@ public class MainActivity extends AppCompatActivity {
                     Toast.LENGTH_SHORT).show();
             Gson gson =  new Gson();
             Type listType = new TypeToken<List<ScheduleModel>>() {}.getType();
-            List<ScheduleModel> restoredSchedule = gson.fromJson(sharedPref.getString(SHARED_SCHEDULE,null),listType);
+            List<ScheduleModel> restoredSchedule
+                    = gson.fromJson(sharedPref.getString(SHARED_SCHEDULE,null), listType);
+            //select study days of current week
+            List<ScheduleModel> selectedScheduleItems = new ArrayList<>();
+            selectedScheduleItems.clear();
+            for (ScheduleModel item: restoredSchedule){
+                if (dateInCurrentWeek(item.getDate())){
+                    selectedScheduleItems.add(item);
+                }
+            }
+
             // show our data
-            ScheduleAdapter adapter = new ScheduleAdapter(restoredSchedule);
+            ScheduleAdapter adapter = new ScheduleAdapter(selectedScheduleItems);
             recyclerView.setAdapter(adapter);
             recyclerView.getAdapter().notifyDataSetChanged();
 
@@ -134,8 +151,6 @@ public class MainActivity extends AppCompatActivity {
             if (sharedPref.contains(SHARED_PREF_LOG) && sharedPref.contains(SHARED_PREF_PASS)){
                 String strLogin = sharedPref.getString(SHARED_PREF_LOG,"");
                 String strPassword = sharedPref.getString(SHARED_PREF_PASS,"");
-                String s = " Login and password are " + strLogin + " " + strPassword;
-                debugMessage.append(s);
                 // получить сессию
                 App.getAuthApi().getData(strLogin, strPassword)
                         .enqueue(new Callback<IdentificationModel>() {
@@ -206,18 +221,64 @@ public class MainActivity extends AppCompatActivity {
                     editor.remove(SHARED_PREF_PASS);
                     editor.apply();
                     editor.commit();
-                    debugMessage.append("Log and Pass are removed");
+                    //debugMessage.append("Log and Pass are removed");
                     signInButton.setText(R.string.enter);
                 }
             }
         });
-
-
-
     } // end of onCreate
 
-
-
+    private boolean dateInCurrentWeek(String date){
+        Date dateNow = new Date();
+        @SuppressLint("SimpleDateFormat") SimpleDateFormat format
+                = new SimpleDateFormat("yyyy-MM-dd");
+        @SuppressLint("SimpleDateFormat") SimpleDateFormat dayOfWeekNow
+                = new SimpleDateFormat("E");
+        Date dateParsed = null;
+        try {
+            dateParsed = format.parse(date);
+            long difference = dateNow.getTime() - dateParsed.getTime();
+            int days = (int)(difference / (24*60*60*1000));
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        int dayOfCurrentWeek = 0;
+        String numberOfDay = dayOfWeekNow.format(dateNow);
+        switch(numberOfDay){
+            case "Sun":
+                dayOfCurrentWeek = 0;
+                break;
+            case "Mon":
+                dayOfCurrentWeek = 1;
+                break;
+            case "Tue":
+                dayOfCurrentWeek = 2;
+                break;
+            case "Wed":
+                dayOfCurrentWeek = 3;
+                break;
+            case "Thu":
+                dayOfCurrentWeek = 4;
+                break;
+            case "Fri":
+                dayOfCurrentWeek = 5;
+                break;
+            case "Sat":
+                dayOfCurrentWeek = 6;
+                break;
+        }
+        Date startDate = new Date();
+        startDate.setTime(dateNow.getTime() - dayOfCurrentWeek*24*60*60*1000);
+        Date endDate = new Date();
+        endDate.setTime(startDate.getTime() + 6*24*60*60*1000);
+        if (dateParsed != null
+                && (dateParsed.after(startDate))
+                && (dateParsed.before(endDate))) {
+            return true;
+        } else {
+            return false;
+        }
+    } // end of dateInCurrentWeek
 
     // записывает в SHARED_PREF id последнего commit
     private void lastUpdateIDRequest(String session){
@@ -335,10 +396,18 @@ public class MainActivity extends AppCompatActivity {
                             Gson gson =  new Gson();
                             String schedJson = gson.toJson(schedule);
                             saveToShared(context, SHARED_SCHEDULE, schedJson);
+                            //select study days for current week to show
+                            List<ScheduleModel> selectedScheduleItems = new ArrayList<>();
+                            selectedScheduleItems.clear();
+                            for (ScheduleModel item: schedule){
+                                if (dateInCurrentWeek(item.getDate())){
+                                    selectedScheduleItems.add(item);
+                                }
+                            }
                             // show schedule
-                            //ScheduleAdapter adapter = new ScheduleAdapter(schedule);
-                            //recyclerView.setAdapter(adapter);
-                            //recyclerView.getAdapter().notifyDataSetChanged();
+                            ScheduleAdapter adapter = new ScheduleAdapter(selectedScheduleItems);
+                            recyclerView.setAdapter(adapter);
+                            recyclerView.getAdapter().notifyDataSetChanged();
                         }
                     }
                     @Override
@@ -358,6 +427,4 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(context,key + " SAVED", Toast.LENGTH_SHORT).show();
         }
     }
-
-
 }

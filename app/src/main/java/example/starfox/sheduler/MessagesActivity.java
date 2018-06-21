@@ -21,15 +21,7 @@ import java.util.List;
 
 public class MessagesActivity extends AppCompatActivity {
     private static final String SHARED_PREF = "MY_SHARED_PREF";
-    private static final String SHARED_PREF_LOG = "USER_LOGIN";
-    private static final String SHARED_PREF_PASS = "USER_PASS";
-    private static final String SHARED_PREF_SESSION = "SESSION";
-    private static final String SHARED_SCHEDULE = "SCHEDULE";
-    private static final String SHARED_MARKS = "MARKS";
     private static final String SHARED_MESSAGES = "MESSAGES";
-    private static final String SHARED_LAST_UPDATE = "LAST_UPDATE";
-    private SharedPreferences sharedPref;
-    RecyclerView recyclerView;
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -71,7 +63,9 @@ public class MessagesActivity extends AppCompatActivity {
         setContentView(R.layout.activity_messages);
         setTitle("Сообщения");
 
-        //mTextMessage = (TextView) findViewById(R.id.message);
+        SharedPreferences sharedPref;
+        RecyclerView recyclerView;
+
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
@@ -83,6 +77,7 @@ public class MessagesActivity extends AppCompatActivity {
             String msg = sharedPref.getString(SHARED_MESSAGES,"");
             List<MsgList> restoredMessages = gson.fromJson(msg,listType);
             int n = restoredMessages.size();
+            restoredMessages.add(setEmptyMessage(" "));
             Toast.makeText(this, n + " Messages found",
                     Toast.LENGTH_SHORT).show();
             // show our data
@@ -93,5 +88,14 @@ public class MessagesActivity extends AppCompatActivity {
             recyclerView.setAdapter(adapter);
             recyclerView.getAdapter().notifyDataSetChanged();
         }
+    }
+    private MsgList setEmptyMessage(String s){
+        MsgList lastMessage = new MsgList();
+        lastMessage.setDstId(s);
+        lastMessage.setDstType(s);
+        lastMessage.setMsg(s);
+        lastMessage.setId(s);
+        lastMessage.setStamp(s);
+        return lastMessage;
     }
 }

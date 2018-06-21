@@ -22,17 +22,7 @@ import java.util.List;
 public class ScheduleActivity extends AppCompatActivity {
 
     private static final String SHARED_PREF = "MY_SHARED_PREF";
-    private static final String SHARED_PREF_LOG = "USER_LOGIN";
-    private static final String SHARED_PREF_PASS = "USER_PASS";
-    private static final String SHARED_PREF_SESSION = "SESSION";
     private static final String SHARED_SCHEDULE = "SCHEDULE";
-    private static final String SHARED_MARKS = "MARKS";
-    private static final String SHARED_MESSAGES = "MESSAGES";
-    private static final String SHARED_LAST_UPDATE = "LAST_UPDATE";
-    private SharedPreferences sharedPref;
-    RecyclerView recyclerView;
-
-    //private TextView mTextMessage;
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -41,15 +31,12 @@ public class ScheduleActivity extends AppCompatActivity {
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
             switch (item.getItemId()) {
                 case R.id.navigation_home:
-                    //mTextMessage.setText(R.string.title_home);
                     openScheduleActivity();
                     return true;
                 case R.id.navigation_dashboard:
-                    //mTextMessage.setText(R.string.title_dashboard);
                     openMarksActivity();
                     return true;
                 case R.id.navigation_notifications:
-                    //mTextMessage.setText(R.string.title_notifications);
                     openMessageActivity();
                     return true;
             }
@@ -77,9 +64,11 @@ public class ScheduleActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main_schedule);
         setTitle("Расписание");
 
-        //mTextMessage = (TextView) findViewById(R.id.message);
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
+
+        SharedPreferences sharedPref;
+        RecyclerView recyclerView;
 
         sharedPref = getSharedPreferences(SHARED_PREF, MODE_PRIVATE);
         if (sharedPref.contains(SHARED_SCHEDULE)){
@@ -93,7 +82,6 @@ public class ScheduleActivity extends AppCompatActivity {
                     Toast.LENGTH_SHORT).show();
             // show our data
             recyclerView = findViewById(R.id.new_schedule_recycle_view);
-
             LinearLayoutManager layoutManager = new LinearLayoutManager(this);
             recyclerView.setLayoutManager(layoutManager);
             ScheduleAdapter adapter = new ScheduleAdapter(restoredSchedule);
